@@ -7,10 +7,7 @@ import type { OpenAPIV3 } from "openapi-types";
  * This config maps directly to the OpenAPI 3.0 `Document` type,
  * excluding `paths`, `components`, and `tags` which are generated.
  */
-export type OpenAPIConfig = Omit<
-  OpenAPIV3.Document,
-  "paths" | "components" | "tags"
->;
+export type OpenAPIConfig = Omit<OpenAPIV3.Document, "paths" | "tags">;
 
 /**
  * Describes a single HTTP API endpoint under a route.
@@ -94,12 +91,17 @@ export type HonoDocsConfig = {
   /**
    * List of API groups (routes) to generate docs for.
    */
-  apis: ApiGroup[];
+  apis?: ApiGroup[];
 
   /**
    * Optional raw string content to inject at the top of each generated `.d.ts` snapshot.
    */
   preDefineTypeContent?: string;
+
+  /**
+   * Optional list of paths to route modules to include; if omitted, all from `apis` are used.
+   */
+  routesPath?: string[];
 };
 
 /**

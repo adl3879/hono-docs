@@ -4,12 +4,15 @@ import { Project } from "ts-morph";
 import { loadConfig } from "../config/loadConfig";
 import { generateTypes } from "./generateTypes";
 import { generateOpenApi } from "./generateOpenApi";
-import { Api } from "../types";
+import { Api, ApiGroup } from "../types";
 import { cleanDefaultResponse, sanitizeApiPrefix } from "../utils/format";
 import { getLibDir } from "../utils/libDir";
+import { parseJsDoc } from "../utils/parseJsDoc";
+import { generateApiGroupsFromJsDocTags } from "./generateApiGroupsFromJsDoc";
 
 export async function runGenerate(configPath: string) {
   const config = await loadConfig(configPath);
+
   const rootPath = process.cwd();
   console.log("Initializing ts-morph with tsConfig:", config.tsConfigPath);
   const project = new Project({
@@ -26,7 +29,19 @@ export async function runGenerate(configPath: string) {
   const libDir = getLibDir();
   console.log("Library root directory:", libDir);
 
-  const apis = config.apis;
+  let apiGroupsFromJsDoc: ApiGroup[] = [];
+  for (const routesPath of config.routesPath || []) {
+    const jsDocs = parseJsDoc(routesPath);
+    apiGroupsFromJsDoc.push(generateApiGroupsFromJsDocTags(jsDocs, routesPath));
+  }
+
+  let apis: ApiGroup[];
+  if (config.routesPath && config.routesPath.length > 0) {
+    console.log("✅ Using JsDoc comments to generate api description");
+    apis = apiGroupsFromJsDoc;
+  } else {
+    apis = config.apis || [];
+  }
 
   const snapshotOutputRoot = path.resolve(libDir, "output/types");
   const openAPiOutputRoot = path.resolve(libDir, "output/openapi");

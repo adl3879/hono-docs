@@ -1,16 +1,16 @@
 {
-  "name": "@rcmade/hono-docs",
+  "name": "@adl3879/hono-docs",
   "version": "1.0.31",
   "description": "Auto-generate OpenAPI 3.0 spec from Hono route types",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rcmade/hono-docs.git"
+    "url": "https://github.com/adl3879/hono-docs.git"
   },
   "bugs": {
-    "url": "https://github.com/rcmade/hono-docs/issues"
+    "url": "https://github.com/adl3879/hono-docs/issues"
   },
-  "homepage": "https://github.com/rcmade/hono-docs#readme",
+  "homepage": "https://github.com/adl3879/hono-docs#readme",
   "keywords": [
     "openapi",
     "hono",
