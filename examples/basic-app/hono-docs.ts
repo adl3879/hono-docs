@@ -1,6 +1,6 @@
-import { defineConfig } from "@rcmade/hono-docs";
+// import { defineConfig } from "@adl3879/hono-docs";
 
-export default defineConfig({
+export default {
   tsConfigPath: "./tsconfig.json",
   openApi: {
     openapi: "3.0.0",
@@ -21,4 +21,4 @@ export default defineConfig({
       ],
     },
   ],
-});
+};

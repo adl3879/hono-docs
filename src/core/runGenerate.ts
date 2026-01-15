@@ -9,6 +9,7 @@ import { cleanDefaultResponse, sanitizeApiPrefix } from "../utils/format";
 import { getLibDir } from "../utils/libDir";
 import { parseJsDoc } from "../utils/parseJsDoc";
 import { generateApiGroupsFromJsDocTags } from "./generateApiGroupsFromJsDoc";
+import { getFileHash, loadCache, saveCache, getCacheKey } from "./cache";
 
 export async function runGenerate(configPath: string) {
   const config = await loadConfig(configPath);
@@ -52,8 +53,27 @@ export async function runGenerate(configPath: string) {
     project,
     rootPath,
   };
+
+  const cache = loadCache();
+  let hasChanges = false;
+
   for (const apiGroup of apis) {
     const sanitizedName = sanitizeApiPrefix(apiGroup.apiPrefix);
+    const absInput = path.resolve(rootPath, apiGroup.appTypePath);
+    const fileHash = getFileHash(absInput);
+    const cacheKey = getCacheKey(sanitizedName, apiGroup.apiPrefix);
+
+    const openApiPath = path.join(openAPiOutputRoot, `${sanitizedName}.json`);
+
+    // Check if cache is valid AND if the output file exists
+    if (
+      fileHash &&
+      cache[cacheKey]?.hash === fileHash &&
+      fs.existsSync(openApiPath)
+    ) {
+      console.log(`⏩ Skipping ${sanitizedName} (no changes)`);
+      continue;
+    }
 
     const snapshotPath = await generateTypes({
       ...commonParams,
@@ -68,6 +88,16 @@ export async function runGenerate(configPath: string) {
       fileName: sanitizedName,
       outputRoot: openAPiOutputRoot,
     });
+
+    // Update cache
+    if (fileHash) {
+      cache[cacheKey] = { hash: fileHash };
+      hasChanges = true;
+    }
+  }
+
+  if (hasChanges) {
+    saveCache(cache);
   }
 
   const merged = {

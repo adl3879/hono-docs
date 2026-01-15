@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { runGenerate } from "../core";
+import { runGenerate, clearCache } from "../core";
 
 yargs(hideBin(process.argv))
   .scriptName("hono-docs")
@@ -21,6 +21,19 @@ yargs(hideBin(process.argv))
         await runGenerate(argv.config);
       } catch (e) {
         console.error("❌", e);
+        process.exit(1);
+      }
+    }
+  )
+  .command(
+    "clean",
+    "Clear the generation cache",
+    () => {},
+    async () => {
+      try {
+        clearCache();
+      } catch (e) {
+        console.error("❌ Failed to clear cache:", e);
         process.exit(1);
       }
     }
